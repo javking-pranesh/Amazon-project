@@ -10,8 +10,6 @@ function getTrackingProgress(deliveryDate) {
     const totalDays = deliveryDay.diff(today, 'day');
     
     // Calculate progress percentage based on days remaining
-    // If delivery is in 5 days, progress is 50% (example logic)
-    // You can adjust this logic based on your requirements
     if (totalDays > 5) return 25; // Preparing
     if (totalDays > 2) return 50; // Shipped
     if (totalDays > 0) return 75; // Out for delivery
@@ -26,6 +24,16 @@ function getCurrentStatus(progress) {
 }
 
 export function renderTrackingPage() {
+    // Show loading state
+    const mainElement = document.querySelector('.main');
+    mainElement.innerHTML = `
+        <div class="order-tracking">
+            <div class="loading-message">
+                Loading tracking information...
+            </div>
+        </div>
+    `;
+    
     // Get orderId and productId from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId');
@@ -42,13 +50,13 @@ export function renderTrackingPage() {
     
     if (!order) {
         // Order not found
-        document.querySelector('.main').innerHTML = `
+        mainElement.innerHTML = `
             <div class="order-tracking">
                 <a class="back-to-orders-link link-primary" href="orders.html">
-                    View all orders
+                    ← View all orders
                 </a>
                 <div class="error-message">
-                    Order not found.
+                    Order not found. The order may have been removed or doesn't exist.
                 </div>
             </div>
         `;
@@ -60,13 +68,13 @@ export function renderTrackingPage() {
     
     if (!orderItem) {
         // Product not found in order
-        document.querySelector('.main').innerHTML = `
+        mainElement.innerHTML = `
             <div class="order-tracking">
                 <a class="back-to-orders-link link-primary" href="orders.html">
-                    View all orders
+                    ← View all orders
                 </a>
                 <div class="error-message">
-                    Product not found in order.
+                    Product not found in this order.
                 </div>
             </div>
         `;
@@ -84,7 +92,7 @@ export function renderTrackingPage() {
     const trackingHTML = `
         <div class="order-tracking">
             <a class="back-to-orders-link link-primary" href="orders.html">
-                View all orders
+                ← View all orders
             </a>
 
             <div class="delivery-date">
@@ -129,22 +137,27 @@ export function renderTrackingPage() {
         </div>
     `;
     
-    document.querySelector('.main').innerHTML = trackingHTML;
+    mainElement.innerHTML = trackingHTML;
     
     // Add event listener for buy again button
-    document.querySelector('.js-buy-again')?.addEventListener('click', () => {
-        addToCart(productId);
-        updateCartQuantity();
-        
-        const button = document.querySelector('.js-buy-again');
-        button.innerHTML = '✓ Added';
-        setTimeout(() => {
-            button.innerHTML = `
-                <img class="buy-again-icon" src="images/icons/buy-again.png">
-                <span class="buy-again-message">Buy it again</span>
-            `;
-        }, 1500);
-    });
+    const buyAgainButton = document.querySelector('.js-buy-again');
+    if (buyAgainButton) {
+        buyAgainButton.addEventListener('click', () => {
+            addToCart(productId);
+            updateCartQuantity();
+            
+            buyAgainButton.innerHTML = '✓ Added';
+            buyAgainButton.style.backgroundColor = '#4CAF50';
+            
+            setTimeout(() => {
+                buyAgainButton.innerHTML = `
+                    <img class="buy-again-icon" src="images/icons/buy-again.png">
+                    <span class="buy-again-message">Buy it again</span>
+                `;
+                buyAgainButton.style.backgroundColor = '';
+            }, 1500);
+        });
+    }
 }
 
 // Initialize the page
