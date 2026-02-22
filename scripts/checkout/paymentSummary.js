@@ -23,6 +23,9 @@ export function renderPaymentSummary() {
     const taxPriceCents = totalBeforeTax * 0.1;
     const totalPriceCents = totalBeforeTax + taxPriceCents;
     
+    // Check if cart is empty
+    const isCartEmpty = cart.length === 0;
+    
     const paymentSummaryHTML = `
     <div class="payment-summary-title">
             Order Summary
@@ -53,21 +56,30 @@ export function renderPaymentSummary() {
             <div class="payment-summary-money">$${formatCurrency(totalPriceCents)}</div>
           </div>
           
-          <button class="place-order-button button-primary js-place-order">
-            Place your order
+          <button class="place-order-button button-primary js-place-order" 
+            ${isCartEmpty ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+            ${isCartEmpty ? 'Cart is empty' : 'Place your order'}
           </button>
+          
+          ${isCartEmpty ? '<p class="empty-cart-message">Add items to your cart before placing an order.</p>' : ''}
     `;
 
     document.querySelector('.js-payment-summary').innerHTML = paymentSummaryHTML;
     
-    // Add event listener to the place order button
+    // Add event listener to the place order button only if cart is not empty
     const placeOrderButton = document.querySelector('.js-place-order');
-    if (placeOrderButton) {
+    if (placeOrderButton && !isCartEmpty) {
         placeOrderButton.addEventListener('click', onPlaceOrder);
     }
 }
 
 function onPlaceOrder() {
+    // Double-check cart is not empty (security)
+    if (cart.length === 0) {
+        alert('Your cart is empty. Add items before placing an order.');
+        return;
+    }
+    
     // Create the order object
     const order = {
         id: generateOrderId(),

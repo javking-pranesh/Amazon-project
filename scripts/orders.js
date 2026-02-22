@@ -1,4 +1,4 @@
-import {orders, getOrder, formatOrderDate} from '../data/orders.js';
+import {orders, getOrder, formatOrderDate, isValidOrder, cleanupEmptyOrders} from '../data/orders.js';
 import {products, getProduct} from '../data/products.js';
 import {cart, addToCart} from '../data/cart.js';
 import {formatCurrency} from './utils/money.js';
@@ -8,7 +8,13 @@ import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
 export function renderOrders() {
     let ordersHTML = '';
     
-    orders.forEach((order) => {
+    // Run cleanup again to be safe
+    cleanupEmptyOrders();
+    
+    // Filter orders to only show valid ones
+    const validOrders = orders.filter(order => isValidOrder(order));
+    
+    validOrders.forEach((order) => {
         const orderDate = dayjs(order.date);
         const formattedDate = orderDate.format('MMMM D');
         
@@ -78,7 +84,7 @@ export function renderOrders() {
         `;
     });
     
-    if (orders.length === 0) {
+    if (validOrders.length === 0) {
         ordersHTML = `
             <div class="no-orders-message">
                 <p>You haven't placed any orders yet.</p>
@@ -110,4 +116,4 @@ export function renderOrders() {
 
 // Initialize the page
 renderOrders();
-updateCartQuantity(); // This now comes from the header.js utility
+updateCartQuantity();

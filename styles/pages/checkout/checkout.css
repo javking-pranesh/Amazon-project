@@ -209,3 +209,19 @@
   margin-top: 11px;
   margin-bottom: 15px;
 }
+
+.place-order-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.empty-cart-message {
+  color: rgb(177, 39, 4);
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+  padding: 10px;
+  background-color: #fff3f3;
+  border-radius: 4px;
+}
